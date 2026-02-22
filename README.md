@@ -41,11 +41,12 @@
 | &nbsp; | Feature | Description |
 |--------|---------|-------------|
 | 🎵 | **Direct YouTube streaming** | yt-dlp piped straight into ffmpeg — no third-party music libraries |
-| 🖼️ | **playing card** | Thumbnail, live progress bar, status, and requester info |
+| 🖼️ | **Rich now playing card** | Thumbnail, live progress bar, status, and requester info |
 | 🎛️ | **Button controls** | Pause, Resume, Skip, Add to Queue, Quit — right on the embed |
 | ➕ | **Modal input** | Click "Add to Queue" for a popup — no slash command needed |
 | 🔊 | **Volume control** | 0 to 200% with `/v` |
-| 📋 | **Queue management** | View, add, skip |
+| 🔇 | **Silent interactions** | No clutter — messages only appear when they matter |
+| 📋 | **Queue management** | View, add, skip, and auto-advance |
 
 ---
 
@@ -155,52 +156,6 @@ npm start
 
 ---
 
-## ☁️ &nbsp; Deploying to Oracle Cloud
-
-<br>
-
-### &nbsp; 1 &nbsp;·&nbsp; Upload your files
-
-```bash
-scp -r ./m.tube ubuntu@<your-server-ip>:~/m.tube
-```
-
-### &nbsp; 2 &nbsp;·&nbsp; Install dependencies on the server
-
-```bash
-# Node.js
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt install -y nodejs ffmpeg
-
-# yt-dlp
-sudo curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp \
-  -o /usr/local/bin/yt-dlp
-sudo chmod a+rx /usr/local/bin/yt-dlp
-```
-
-### &nbsp; 3 &nbsp;·&nbsp; Start with PM2
-
-[PM2](https://pm2.keymetrics.io/) keeps m.tube running in the background and restarts it automatically on crash or reboot.
-
-```bash
-sudo npm install -g pm2
-cd ~/m.tube && npm install
-pm2 start bot.js --name m.tube
-pm2 startup && pm2 save
-```
-
-<br>
-
-> **PM2 quick reference**
-
-| Command | Description |
-|---------|-------------|
-| `pm2 logs m.tube` | View live logs |
-| `pm2 restart m.tube` | Restart the bot |
-| `pm2 stop m.tube` | Stop the bot |
-| `pm2 status` | Check running status |
-
----
 
 ## 🎮 &nbsp; Commands
 
