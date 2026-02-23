@@ -36,8 +36,10 @@ export async function getSongInfo(query, requester = 'Unknown') {
  */
 export function createStream(url, volume = 1) {
   const ytdlp = spawn(YTDLP, [
-    '-f', 'bestaudio',
+    '-f', 'bestaudio[protocol^=http][abr>0]/bestaudio[protocol^=http]/bestaudio',
     '--no-playlist',
+    '--no-part',
+    '--extractor-args', 'youtube:skip=dash,hls',
     '-o', '-',
     url,
   ]);
@@ -59,14 +61,14 @@ export function createStream(url, volume = 1) {
 
   ytdlp.stderr.on('data', (chunk) => {
     const msg = chunk.toString();
-    if (!msg.includes('[download]') && !msg.includes('ETA')) {
+    if (msg.includes('[info]') || msg.includes('ERROR') || msg.includes('WARNING')) {
       console.error('[yt-dlp]', msg.trim());
     }
   });
 
   ffmpeg.stderr.on('data', (chunk) => {
     const msg = chunk.toString();
-    if (!msg.startsWith('size=') && !msg.includes('bitrate=') && !msg.includes('speed=')) {
+    if (msg.includes('Error') || msg.includes('Invalid') || msg.includes('No such')) {
       console.error('[ffmpeg]', msg.trim());
     }
   });
