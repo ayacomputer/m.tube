@@ -127,26 +127,35 @@ export async function playNext(guildId) {
  * @param {string} requester
  */
 export function addToQueue(voiceChannel, query, textChannel, requester) {
+  addToQueueAsync(voiceChannel, query, textChannel, requester).catch((err) => {
+    console.error('[addToQueue]', err);
+    textChannel.send({ embeds: [buildErrorEmbed(err.message)] });
+  });
+}
+
+/**
+ * Awaitable version of addToQueue — use when ordering matters (e.g. bulk vibe queuing).
+ * @param {import('discord.js').VoiceBasedChannel} voiceChannel
+ * @param {string} query
+ * @param {import('discord.js').TextChannel} textChannel
+ * @param {string} requester
+ * @returns {Promise<void>}
+ */
+export async function addToQueueAsync(voiceChannel, query, textChannel, requester) {
   const guildId = voiceChannel.guild.id;
+  const song = await getSongInfo(query, requester);
 
-  getSongInfo(query, requester)
-    .then(async (song) => {
-      let state = guilds.get(guildId);
-      if (!state) state = await initGuildState(voiceChannel, textChannel);
+  let state = guilds.get(guildId);
+  if (!state) state = await initGuildState(voiceChannel, textChannel);
 
-      state.textChannel = textChannel;
-      state.queue.push(song);
+  state.textChannel = textChannel;
+  state.queue.push(song);
 
-      if (state.queue.length === 1) {
-        playNext(guildId);
-      } else {
-        textChannel.send({ embeds: [buildAddedEmbed(song)] });
-      }
-    })
-    .catch((err) => {
-      console.error('[addToQueue]', err);
-      textChannel.send({ embeds: [buildErrorEmbed(err.message)] });
-    });
+  if (state.queue.length === 1) {
+    playNext(guildId);
+  } else {
+    textChannel.send({ embeds: [buildAddedEmbed(song)] });
+  }
 }
 
 /**
