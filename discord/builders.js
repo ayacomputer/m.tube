@@ -9,9 +9,13 @@ import {
   StringSelectMenuBuilder,
 } from 'discord.js';
 import { AudioPlayerStatus } from '@discordjs/voice';
-import { COLORS } from '../config.js';
+import { COLORS, LOCALE } from '../config.js';
+import locales from '../locale.js';
+
 import { formatDuration, parseDurationToSeconds, buildProgressBar, getThumbnail } from '../utils/format.js';
 import { getElapsedMs } from '../utils/elapsed.js';
+
+const t = locales[LOCALE] ?? locales.en;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -38,19 +42,19 @@ export function buildNowPlayingEmbed(song, state) {
 
   const embed = new EmbedBuilder()
     .setColor(COLORS.nowPlaying)
-    .setTitle('🎵 Now Playing')
+    .setTitle(t.nowPlayingTitle)
     .setDescription(`### [${song.title}](${song.url})\n\`${'─'.repeat(40)}\``)
     .addFields(
       {
-        name: '⏱ Progress',
-        value: `\`${elapsedStr}\` \`${bar}\` \`${totalStr}\`\n${paused ? '⏸️ **Paused**' : '▶️ Playing'}`,
+        name: t.nowPlayingFieldProgress,
+        value: `\`${elapsedStr}\` \`${bar}\` \`${totalStr}\`\n${paused ? t.nowPlayingPaused : t.nowPlayingPlaying}`,
         inline: false,
       },
-      { name: '👤 Requested by', value: song.requester,                   inline: true },
-      { name: '⏳ Duration',     value: `\`${song.duration}\``,           inline: true },
-      { name: '🔗 Link',         value: `[Open in YouTube](${song.url})`, inline: true },
+      { name: t.nowPlayingFieldReq, value: song.requester,                   inline: true },
+      { name: t.nowPlayingFieldDur,     value: `\`${song.duration}\``,           inline: true },
+      { name: t.nowPlayingFieldLink,    value: `[${t.nowPlayingLinkLabel}](${song.url})`, inline: true },
     )
-    .setFooter({ text: '▐ m.tube' })
+    .setFooter({ text: t.footer })
     .setTimestamp();
 
   if (thumbnail) embed.setThumbnail(thumbnail);
@@ -67,34 +71,34 @@ export function buildControls(paused = false) {
   const row1 = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
       .setCustomId('btn_pause_resume')
-      .setLabel(paused ? '▶️ Resume' : '⏸️ Pause')
+      .setLabel(paused ? t.btnResume : t.btnPause)
       .setStyle(paused ? ButtonStyle.Success : ButtonStyle.Primary),
     new ButtonBuilder()
       .setCustomId('btn_skip')
-      .setLabel('⏭️ Skip')
+      .setLabel(t.btnSkip)
       .setStyle(ButtonStyle.Secondary),
     new ButtonBuilder()
       .setCustomId('btn_add_queue')
-      .setLabel('➕ Add')
+      .setLabel(t.btnAdd)
       .setStyle(ButtonStyle.Secondary),
     new ButtonBuilder()
       .setCustomId('btn_show_queue')
-      .setLabel('📋 Queue')
+      .setLabel(t.btnQueue)
       .setStyle(ButtonStyle.Secondary),
     new ButtonBuilder()
       .setCustomId('btn_quit')
-      .setLabel('🚪 Quit')
+      .setLabel(t.btnQuit)
       .setStyle(ButtonStyle.Danger),
   );
 
   const row2 = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
       .setCustomId('btn_ai_pick')
-      .setLabel('🤖 AI Pick')
+      .setLabel(t.btnAIPick)
       .setStyle(ButtonStyle.Primary),
     new ButtonBuilder()
       .setCustomId('btn_vibe')
-      .setLabel('🎶 Vibe Queue')
+      .setLabel(t.btnVibe)
       .setStyle(ButtonStyle.Primary),
   );
 
@@ -111,14 +115,14 @@ export function buildQueueJumpMenu(queue) {
 
   const options = queue.slice(1, 26).map((song, i) => ({
     label: song.title.slice(0, 100),
-    description: `${song.duration} · requested by ${song.requester.replace(/<@!?(\d+)>/, 'user')}`,
+    description: t.queueJumpDesc(song.duration, song.requester.replace(/<@!?(\d+)>/, 'user')),
     value: `jump_${i + 1}`,
     emoji: getQueueEmoji(i + 1),
   }));
 
   const menu = new StringSelectMenuBuilder()
     .setCustomId('menu_queue_jump')
-    .setPlaceholder('⏩ Jump to a song in the queue…')
+    .setPlaceholder(t.queueJumpPlaceholder)
     .addOptions(options);
 
   return new ActionRowBuilder().addComponents(menu);
@@ -130,7 +134,7 @@ export function buildQueueJumpMenu(queue) {
 export function buildQueueEmbed(queue) {
   const list = queue
     .map((s, i) => {
-      const num = i === 0 ? '🔊 **Now**' : `\`${i}.\``;
+      const num = i === 0 ? t.queueNow : `\`${i}.\``;
       return `${num} [${s.title}](${s.url}) \`[${s.duration}]\` — ${s.requester}`;
     })
     .join('\n') || 'Empty';
@@ -139,14 +143,14 @@ export function buildQueueEmbed(queue) {
 
   return new EmbedBuilder()
     .setColor(COLORS.queue)
-    .setTitle('📋 Queue')
+    .setTitle(t.queueTitle)
     .setDescription(list)
     .addFields({
       name: '​',
-      value: `**${queue.length}** song${queue.length !== 1 ? 's' : ''} · Total: \`${formatDuration(totalDuration)}\``,
+      value: t.queueSummary(queue.length, formatDuration(totalDuration)),
       inline: false,
     })
-    .setFooter({ text: '▐ m.tube' })
+    .setFooter({ text: t.footer })
     .setTimestamp();
 }
 
@@ -163,9 +167,9 @@ export function buildSearchResultsEmbed(results, query) {
 
   return new EmbedBuilder()
     .setColor(COLORS.nowPlaying)
-    .setTitle(`🔍 Results for "${query}"`)
+    .setTitle(t.searchTitle(query))
     .setDescription(list)
-    .setFooter({ text: 'Pick a song below · m.tube' });
+    .setFooter({ text: t.searchFooter });
 }
 
 /** @param {{ title: string, url: string, duration: string }[]} results */
@@ -180,7 +184,7 @@ export function buildSearchResultsMenu(results) {
   return new ActionRowBuilder().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('menu_search_pick')
-      .setPlaceholder('Choose a song to play…')
+      .setPlaceholder(t.searchPlaceholder)
       .addOptions(options)
   );
 }
@@ -189,7 +193,7 @@ export function buildSearchCancelRow() {
   return new ActionRowBuilder().addComponents(
     new ButtonBuilder()
       .setCustomId('btn_search_cancel')
-      .setLabel('✖ Cancel')
+      .setLabel(t.searchCancel)
       .setStyle(ButtonStyle.Secondary),
   );
 }
@@ -203,24 +207,24 @@ export function buildSearchCancelRow() {
 export function buildAIPickEmbed(prompt, query) {
   return new EmbedBuilder()
     .setColor(0xb799ff)
-    .setTitle('🤖 AI Pick')
-    .setDescription(`**Prompt:** *${prompt}*\n\n🎵 **${query}**`)
-    .setFooter({ text: 'Confirm to play · Reroll for a different pick · m.tube' });
+    .setTitle(t.aiPickTitle)
+    .setDescription(t.aiPickDesc(prompt, query))
+    .setFooter({ text: t.aiPickFooter });
 }
 
 export function buildAIPickControls() {
   return new ActionRowBuilder().addComponents(
     new ButtonBuilder()
       .setCustomId('btn_ai_confirm')
-      .setLabel('✅ Play it')
+      .setLabel(t.aiPickPlay)
       .setStyle(ButtonStyle.Success),
     new ButtonBuilder()
       .setCustomId('btn_ai_reroll')
-      .setLabel('🎲 Reroll')
+      .setLabel(t.aiPickReroll)
       .setStyle(ButtonStyle.Primary),
     new ButtonBuilder()
       .setCustomId('btn_ai_cancel')
-      .setLabel('✖ Cancel')
+      .setLabel(t.aiPickCancel)
       .setStyle(ButtonStyle.Secondary),
   );
 }
@@ -238,24 +242,24 @@ export function buildVibeQueueEmbed(prompt, queries) {
 
   return new EmbedBuilder()
     .setColor(0xb799ff)
-    .setTitle('🎶 Vibe Queue')
-    .setDescription(`**Prompt:** *${prompt}*\n\n${list}`)
-    .setFooter({ text: 'Confirm to queue all · m.tube' });
+    .setTitle(t.vibeTitle)
+    .setDescription(t.vibeDesc(prompt, list))
+    .setFooter({ text: t.vibeFooter });
 }
 
 export function buildVibeQueueControls() {
   return new ActionRowBuilder().addComponents(
     new ButtonBuilder()
       .setCustomId('btn_vibe_confirm')
-      .setLabel('✅ Queue all')
+      .setLabel(t.vibeConfirm)
       .setStyle(ButtonStyle.Success),
     new ButtonBuilder()
       .setCustomId('btn_vibe_reroll')
-      .setLabel('🎲 Reroll')
+      .setLabel(t.vibeReroll)
       .setStyle(ButtonStyle.Primary),
     new ButtonBuilder()
       .setCustomId('btn_vibe_cancel')
-      .setLabel('✖ Cancel')
+      .setLabel(t.vibeCancel)
       .setStyle(ButtonStyle.Secondary),
   );
 }
@@ -265,13 +269,13 @@ export function buildVibeQueueControls() {
 export function buildAIPickModal() {
   const modal = new ModalBuilder()
     .setCustomId('modal_ai_pick')
-    .setTitle('🤖 AI Pick');
+    .setTitle(t.aiPickModalTitle);
 
   const input = new TextInputBuilder()
     .setCustomId('modal_ai_prompt')
-    .setLabel('Describe a mood, vibe, or activity')
+    .setLabel(t.aiPickModalLabel)
     .setStyle(TextInputStyle.Short)
-    .setPlaceholder('e.g. chill late night coding')
+    .setPlaceholder(t.aiPickModalPlaceholder)
     .setRequired(true);
 
   modal.addComponents(new ActionRowBuilder().addComponents(input));
@@ -281,20 +285,20 @@ export function buildAIPickModal() {
 export function buildVibeModal() {
   const modal = new ModalBuilder()
     .setCustomId('modal_vibe')
-    .setTitle('🎶 Vibe Queue');
+    .setTitle(t.vibeModalTitle);
 
   const promptInput = new TextInputBuilder()
     .setCustomId('modal_vibe_prompt')
-    .setLabel('Describe a mood, vibe, or activity')
+    .setLabel(t.vibeModalLabel)
     .setStyle(TextInputStyle.Short)
-    .setPlaceholder('e.g. hype workout songs')
+    .setPlaceholder(t.vibeModalPlaceholder)
     .setRequired(true);
 
   const countInput = new TextInputBuilder()
     .setCustomId('modal_vibe_count')
-    .setLabel('How many songs? (1–10, default 5)')
+    .setLabel(t.vibeModalCountLabel)
     .setStyle(TextInputStyle.Short)
-    .setPlaceholder('5')
+    .setPlaceholder(t.vibeModalCountPlaceholder)
     .setRequired(false);
 
   modal.addComponents(
@@ -310,7 +314,7 @@ export function buildVibeModal() {
 export function buildAddedEmbed(song) {
   return new EmbedBuilder()
     .setColor(COLORS.added)
-    .setDescription(`✅ **[${song.title}](${song.url})** \`${song.duration}\` — ${song.requester}`);
+    .setDescription(t.addedDesc(song.title, song.url, song.duration, song.requester));
 }
 
 /** @param {string} message */
@@ -328,13 +332,13 @@ export function buildNeutralEmbed(message) {
 export function buildAddModal() {
   const modal = new ModalBuilder()
     .setCustomId('modal_add_queue')
-    .setTitle('➕ Add to Queue');
+    .setTitle(t.addModalTitle);
 
   const input = new TextInputBuilder()
     .setCustomId('modal_query')
-    .setLabel('Song name or YouTube URL')
+    .setLabel(t.addModalLabel)
     .setStyle(TextInputStyle.Short)
-    .setPlaceholder('e.g. Daft Punk - Get Lucky')
+    .setPlaceholder(t.addModalPlaceholder)
     .setRequired(true);
 
   modal.addComponents(new ActionRowBuilder().addComponents(input));
