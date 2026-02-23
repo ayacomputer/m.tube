@@ -1,61 +1,65 @@
 import { SlashCommandBuilder } from 'discord.js';
+import { LOCALE } from '../config.js';
+import locales from '../locale.js';
+
+const t = locales[LOCALE] ?? locales.en;
 
 export const COMMANDS = [
   new SlashCommandBuilder()
     .setName('p')
-    .setDescription('Play a song immediately')
+    .setDescription(t.cmdP)
     .addStringOption((opt) =>
-      opt.setName('query').setDescription('Song name or YouTube URL').setRequired(true)
+      opt.setName('query').setDescription(t.cmdPQuery).setRequired(true)
     ),
 
   new SlashCommandBuilder()
     .setName('a')
-    .setDescription('Add a song to the end of the queue')
+    .setDescription(t.cmdA)
     .addStringOption((opt) =>
-      opt.setName('query').setDescription('Song name or YouTube URL').setRequired(true)
+      opt.setName('query').setDescription(t.cmdAQuery).setRequired(true)
     ),
 
   new SlashCommandBuilder()
     .setName('ai')
-    .setDescription('Let AI pick a song based on your mood or vibe')
+    .setDescription(t.cmdAI)
     .addStringOption((opt) =>
-      opt.setName('prompt').setDescription('Describe a mood, activity, or vibe').setRequired(true)
+      opt.setName('prompt').setDescription(t.cmdAIPrompt).setRequired(true)
     ),
 
   new SlashCommandBuilder()
     .setName('vibe')
-    .setDescription('Let AI queue up multiple songs for your vibe')
+    .setDescription(t.cmdVibe)
     .addStringOption((opt) =>
-      opt.setName('prompt').setDescription('Describe a mood, activity, or vibe').setRequired(true)
+      opt.setName('prompt').setDescription(t.cmdVibePrompt).setRequired(true)
     )
     .addIntegerOption((opt) =>
-      opt.setName('count').setDescription('How many songs to queue (default: 5, max: 10)').setRequired(false)
+      opt.setName('count').setDescription(t.cmdVibeCount).setRequired(false)
     ),
 
   new SlashCommandBuilder()
     .setName('st')
-    .setDescription('Pause the current song'),
+    .setDescription(t.cmdSt),
 
   new SlashCommandBuilder()
     .setName('res')
-    .setDescription('Resume the current song'),
+    .setDescription(t.cmdRes),
 
   new SlashCommandBuilder()
     .setName('sk')
-    .setDescription('Skip the current song'),
+    .setDescription(t.cmdSk),
 
   new SlashCommandBuilder()
     .setName('v')
-    .setDescription('Set the playback volume')
+    .setDescription(t.cmdV)
     .addIntegerOption((opt) =>
-      opt.setName('percent').setDescription('Volume percentage (0–200)').setRequired(true)
+      opt.setName('percent').setDescription(t.cmdVPercent).setRequired(true)
     ),
 
   new SlashCommandBuilder()
     .setName('ls')
-    .setDescription('Show the current queue'),
+    .setDescription(t.cmdLs),
 
   new SlashCommandBuilder()
     .setName('q')
-    .setDescription('Stop playback and leave the voice channel'),
+    .setDescription(t.cmdQ),
 ].map((cmd) => cmd.toJSON());
