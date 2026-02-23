@@ -11,15 +11,22 @@ export function startProgressUpdater(guildId) {
   const state = guilds.get(guildId);
   if (!state) return;
 
+  // Clear any existing interval before starting a new one
+  if (state.progressInterval) {
+    clearInterval(state.progressInterval);
+    state.progressInterval = null;
+  }
+
   const interval = setInterval(async () => {
     const s = guilds.get(guildId);
 
+    // Stop if guild state is gone or queue is empty
     if (!s || !s.nowPlayingMessage || !s.queue.length) {
       clearInterval(interval);
       return;
     }
 
-    // Don't update while paused – the embed is already frozen.
+    // Don't update while paused — embed is already frozen
     if (s.player.state.status === AudioPlayerStatus.Paused) return;
 
     try {
@@ -27,10 +34,21 @@ export function startProgressUpdater(guildId) {
         embeds: [buildNowPlayingEmbed(s.queue[0], s)],
         components: [buildControls(false)],
       });
-    } catch {
-      clearInterval(interval);
+    } catch (err) {
+      // Message was deleted — stop updating
+      if (err.code === 10008) {
+        clearInterval(interval);
+        return;
+      }
+      // Bot lost permissions — stop updating
+      if (err.code === 50013) {
+        clearInterval(interval);
+        console.error('[progress] Missing permissions to edit now-playing message.');
+        return;
+      }
+      // Transient Discord error (50027, rate limit, etc.) — keep trying
     }
-  }, PROGRESS_INTERVAL_MS);
+  }, Math.max(1, PROGRESS_INTERVAL_MS));
 
   state.progressInterval = interval;
 }
