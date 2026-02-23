@@ -1,8 +1,11 @@
+import libsodium from 'libsodium-wrappers';
 import 'dotenv/config';
 import { Client, GatewayIntentBits } from 'discord.js';
 import { YTDLP } from './config.js';
 import { COMMANDS } from './discord/commands.js';
 import { handleButton, handleModal, handleCommand } from './discord/interactions.js';
+
+await libsodium.ready;
 
 // ─── Global error safety net ─────────────────────────────────────────────────
 process.on('unhandledRejection', (err) => console.error('[unhandledRejection]', err));
