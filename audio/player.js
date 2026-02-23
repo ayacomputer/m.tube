@@ -12,6 +12,10 @@ import guilds from '../store.js';
 import { createStream, getSongInfo } from './stream.js';
 import { startProgressUpdater, stopProgressUpdater } from './progress.js';
 import { buildNowPlayingEmbed, buildControls, buildAddedEmbed, buildNeutralEmbed, buildErrorEmbed } from '../discord/builders.js';
+import { LOCALE } from '../config.js';
+import locales from '../locale.js';
+
+const t = locales[LOCALE] ?? locales.en;
 import { resetElapsed, freezeElapsed, resumeElapsed } from '../utils/elapsed.js';
 
 // ─── Internal helpers ────────────────────────────────────────────────────────
@@ -89,7 +93,7 @@ export async function playNext(guildId) {
   if (!state || state.queue.length === 0) {
     if (state) {
       stopProgressUpdater(guildId);
-      state.textChannel.send({ embeds: [buildNeutralEmbed('Queue is empty, leaving! 👋')] });
+      state.textChannel.send({ embeds: [buildNeutralEmbed(t.queueEmpty)] });
       try { state.connection.destroy(); } catch { /* already destroyed */ }
       guilds.delete(guildId);
     }
