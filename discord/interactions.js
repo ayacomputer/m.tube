@@ -37,7 +37,7 @@ export async function handleButton(interaction) {
 
       case 'btn_add_queue':
         if (!member.voice?.channel) {
-          return interaction.reply({ content: 'Join a voice channel first!', ephemeral: true });
+          return interaction.reply({ content: 'Join a voice channel first!', flags: MessageFlags.Ephemeral });
         }
         await interaction.showModal(buildAddModal());
         break;
@@ -56,13 +56,13 @@ export async function handleModal(interaction) {
   try {
     const voiceChannel = interaction.member?.voice?.channel;
     if (!voiceChannel) {
-      return interaction.reply({ content: 'Join a voice channel first!', ephemeral: true });
+      return interaction.reply({ content: 'Join a voice channel first!', flags: MessageFlags.Ephemeral });
     }
 
     const query = interaction.fields.getTextInputValue('modal_query');
     const requester = `<@${interaction.user.id}>`;
 
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     addToQueue(voiceChannel, query, interaction.channel, requester);
     await interaction.deleteReply();
   } catch (err) {
@@ -80,7 +80,7 @@ export async function handleCommand(interaction) {
   try {
     switch (commandName) {
       case 'p': {
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         if (!member.voice.channel) return interaction.editReply({ content: 'Join a voice channel first!' });
         await playNow(member.voice.channel, interaction.options.getString('query'), channel, requester);
         await interaction.deleteReply();
@@ -88,7 +88,7 @@ export async function handleCommand(interaction) {
       }
 
       case 'a': {
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         if (!member.voice.channel) return interaction.editReply({ content: 'Join a voice channel first!' });
         addToQueue(member.voice.channel, interaction.options.getString('query'), channel, requester);
         await interaction.deleteReply();
@@ -96,31 +96,31 @@ export async function handleCommand(interaction) {
       }
 
       case 'q':
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         stop(guildId);
         await interaction.deleteReply();
         break;
 
       case 'st':
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         pause(guildId);
         await interaction.deleteReply();
         break;
 
       case 'res':
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         resume(guildId);
         await interaction.deleteReply();
         break;
 
       case 'sk':
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         skip(guildId);
         await interaction.deleteReply();
         break;
 
       case 'v': {
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         const percent = interaction.options.getInteger('percent');
         await setVolume(guildId, percent / 100);
         await interaction.deleteReply();
