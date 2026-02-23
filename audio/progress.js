@@ -32,7 +32,7 @@ export function startProgressUpdater(guildId) {
     try {
       await s.nowPlayingMessage.edit({
         embeds: [buildNowPlayingEmbed(s.queue[0], s)],
-        components: [buildControls(false)],
+        components: buildControls(false),
       });
     } catch (err) {
       // Message was deleted — stop updating
