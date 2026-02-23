@@ -44,7 +44,7 @@ function makePlayer(guildId, textChannel) {
  * Build the initial guild state and join the voice channel.
  * @param {import('discord.js').VoiceBasedChannel} voiceChannel
  * @param {import('discord.js').TextChannel} textChannel
- * @returns {Promise<import('../src/store.js').GuildState>}
+ * @returns {Promise<import('../store.js').GuildState>}
  */
 async function initGuildState(voiceChannel, textChannel) {
   const guildId = voiceChannel.guild.id;
@@ -110,7 +110,7 @@ export async function playNext(guildId) {
   try {
     const msg = await state.textChannel.send({
       embeds: [buildNowPlayingEmbed(song, state)],
-      components: [buildControls(false)],
+      components: buildControls(false),  // ✅ array of rows returned directly
     });
     state.nowPlayingMessage = msg;
     startProgressUpdater(guildId);
@@ -221,7 +221,7 @@ export function pause(guildId) {
 
   state.nowPlayingMessage?.edit({
     embeds: [buildNowPlayingEmbed(state.queue[0], state)],
-    components: [buildControls(true)],
+    components: buildControls(true),   // ✅ no wrapping []
   }).catch(() => {});
 
   return 'paused';
@@ -242,7 +242,7 @@ export function resume(guildId) {
 
   state.nowPlayingMessage?.edit({
     embeds: [buildNowPlayingEmbed(state.queue[0], state)],
-    components: [buildControls(false)],
+    components: buildControls(false),  // ✅ no wrapping []
   }).catch(() => {});
 
   return 'resumed';
@@ -287,7 +287,7 @@ export async function setVolume(guildId, volume) {
 
   state.nowPlayingMessage?.edit({
     embeds: [buildNowPlayingEmbed(song, state)],
-    components: [buildControls(false)],
+    components: buildControls(false),  // ✅ no wrapping []
   }).catch(() => {});
 
   startProgressUpdater(guildId);
