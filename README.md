@@ -3,13 +3,8 @@
 <br>
 
 # 📺 &nbsp; m . t u b e
+## *A clean, lightweight Discord music bot powered by `yt-dlp` and `ffmpeg`.*
 
-<br>
-
-*A clean, lightweight Discord music bot powered by `yt-dlp` and `ffmpeg`.*
-*No bloated libraries. No nonsense. Just music.*
-
-<br>
 
 ![Node.js](https://img.shields.io/badge/Node.js-v18+-339933?style=for-the-badge&logo=node.js&logoColor=white)
 ![Discord.js](https://img.shields.io/badge/discord.js-v14-5865F2?style=for-the-badge&logo=discord&logoColor=white)
@@ -98,7 +93,7 @@
 ### &nbsp; 1 &nbsp;·&nbsp; Clone the repo
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/ayacomputer/m.tube.git
 cd m.tube
 ```
 
