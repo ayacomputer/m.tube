@@ -1,7 +1,7 @@
 import { AudioPlayerStatus } from '@discordjs/voice';
 import { MessageFlags } from 'discord.js';
 import guilds from '../store.js';
-import { addToQueue, playNow, stop, pause, resume, skip, setVolume } from '../audio/player.js';
+import { addToQueue, addToQueueAsync, playNow, stop, pause, resume, skip, setVolume } from '../audio/player.js';
 import { getAISongSuggestion, getAISongQueue } from '../audio/ai.js';
 import { getSongInfo } from '../audio/stream.js';
 import {
@@ -114,9 +114,7 @@ export async function handleButton(interaction) {
         const pending = pendingAI.get(user.id);
         if (!pending) return interaction.update({ content: '⚠️ Session expired.', embeds: [], components: [] });
         pendingAI.delete(user.id);
-        const state = guilds.get(guildId);
-        const isIdle = !state || state.queue.length === 0;
-        await interaction.update({ content: `${isIdle ? '▶️ Playing' : '✅ Added to queue'}: **${pending.query}**…`, embeds: [], components: [] });
+        await interaction.update({ content: `✅ Adding **${pending.query}** to queue…`, embeds: [], components: [] });
         addToQueue(pending.voiceChannel, pending.query, pending.channel, pending.requester);
         break;
       }
@@ -155,7 +153,7 @@ export async function handleButton(interaction) {
         pendingVibe.delete(user.id);
         await interaction.update({ content: `✅ Queuing **${pending.queries.length}** songs…`, embeds: [], components: [] });
         for (const query of pending.queries) {
-          addToQueue(pending.voiceChannel, query, pending.channel, pending.requester);
+          await addToQueueAsync(pending.voiceChannel, query, pending.channel, pending.requester);
         }
         break;
       }
