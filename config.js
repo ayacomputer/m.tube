@@ -12,3 +12,4 @@ export const PROGRESS_INTERVAL_MS = 5_000;
 export const MAX_VOLUME = 2;
 export const MIN_VOLUME = 0;
 export const VOICE_READY_TIMEOUT_MS = 30_000;
+export const LOCALE = 'ja';
