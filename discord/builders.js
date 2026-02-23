@@ -28,7 +28,7 @@ export function buildNowPlayingEmbed(song, state) {
   const embed = new EmbedBuilder()
     .setColor(COLORS.nowPlaying)
     .setTitle('🎵 Now Playing')
-    .setDescription(`### [${song.title}](${song.url})`)
+    .setDescription(`### [${song.title}](${song.url})\n\`${'─'.repeat(40)}\``)
     .addFields(
       {
         name: '⏱ Progress',
