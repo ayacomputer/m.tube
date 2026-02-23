@@ -114,8 +114,10 @@ export async function handleButton(interaction) {
         const pending = pendingAI.get(user.id);
         if (!pending) return interaction.update({ content: '⚠️ Session expired.', embeds: [], components: [] });
         pendingAI.delete(user.id);
-        await interaction.update({ content: `▶️ Playing **${pending.query}**…`, embeds: [], components: [] });
-        await playNow(pending.voiceChannel, pending.query, pending.channel, pending.requester);
+        const state = guilds.get(guildId);
+        const isIdle = !state || state.queue.length === 0;
+        await interaction.update({ content: `${isIdle ? '▶️ Playing' : '✅ Added to queue'}: **${pending.query}**…`, embeds: [], components: [] });
+        addToQueue(pending.voiceChannel, pending.query, pending.channel, pending.requester);
         break;
       }
 
