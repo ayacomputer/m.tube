@@ -1,38 +1,61 @@
-/** @type {import('discord.js').ApplicationCommandData[]} */
+import { SlashCommandBuilder } from 'discord.js';
+
 export const COMMANDS = [
-  {
-    name: 'p',
-    description: 'Play a song immediately, replacing current song but keeping queue',
-    options: [{ name: 'query', type: 3, description: 'Song name or URL', required: true }],
-  },
-  {
-    name: 'a',
-    description: 'Add a song to the end of the queue without interrupting',
-    options: [{ name: 'query', type: 3, description: 'Song name or URL', required: true }],
-  },
-  {
-    name: 'q',
-    description: 'Kill the session and leave the voice channel',
-  },
-  {
-    name: 'st',
-    description: 'Pause the current song',
-  },
-  {
-    name: 'res',
-    description: 'Resume the paused song',
-  },
-  {
-    name: 'sk',
-    description: 'Skip the current song',
-  },
-  {
-    name: 'v',
-    description: 'Set the volume (0 to 200%)',
-    options: [{ name: 'percent', type: 4, description: 'Volume percent (0-200)', required: true }],
-  },
-  {
-    name: 'ls',
-    description: 'List the current queue',
-  },
-];
+  new SlashCommandBuilder()
+    .setName('p')
+    .setDescription('Play a song immediately')
+    .addStringOption((opt) =>
+      opt.setName('query').setDescription('Song name or YouTube URL').setRequired(true)
+    ),
+
+  new SlashCommandBuilder()
+    .setName('a')
+    .setDescription('Add a song to the end of the queue')
+    .addStringOption((opt) =>
+      opt.setName('query').setDescription('Song name or YouTube URL').setRequired(true)
+    ),
+
+  new SlashCommandBuilder()
+    .setName('ai')
+    .setDescription('Let AI pick a song based on your mood or vibe')
+    .addStringOption((opt) =>
+      opt.setName('prompt').setDescription('Describe a mood, activity, or vibe').setRequired(true)
+    ),
+
+  new SlashCommandBuilder()
+    .setName('vibe')
+    .setDescription('Let AI queue up multiple songs for your vibe')
+    .addStringOption((opt) =>
+      opt.setName('prompt').setDescription('Describe a mood, activity, or vibe').setRequired(true)
+    )
+    .addIntegerOption((opt) =>
+      opt.setName('count').setDescription('How many songs to queue (default: 5, max: 10)').setRequired(false)
+    ),
+
+  new SlashCommandBuilder()
+    .setName('st')
+    .setDescription('Pause the current song'),
+
+  new SlashCommandBuilder()
+    .setName('res')
+    .setDescription('Resume the current song'),
+
+  new SlashCommandBuilder()
+    .setName('sk')
+    .setDescription('Skip the current song'),
+
+  new SlashCommandBuilder()
+    .setName('v')
+    .setDescription('Set the playback volume')
+    .addIntegerOption((opt) =>
+      opt.setName('percent').setDescription('Volume percentage (0–200)').setRequired(true)
+    ),
+
+  new SlashCommandBuilder()
+    .setName('ls')
+    .setDescription('Show the current queue'),
+
+  new SlashCommandBuilder()
+    .setName('q')
+    .setDescription('Stop playback and leave the voice channel'),
+].map((cmd) => cmd.toJSON());
