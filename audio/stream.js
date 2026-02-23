@@ -6,24 +6,70 @@ import { YTDLP } from '../config.js';
 const execAsync = promisify(exec);
 
 /**
- * Fetch song metadata via yt-dlp.
+ * Fetch song metadata via yt-dlp, skipping age-restricted results.
  * @param {string} query - URL or search term
  * @param {string} [requester='Unknown']
  * @returns {Promise<import('../src/store.js').Song>}
  */
 export async function getSongInfo(query, requester = 'Unknown') {
-  const searchQuery = query.startsWith('http') ? query : `ytsearch1:${query}`;
+  const isUrl = query.startsWith('http');
+
+  if (isUrl) {
+    // Direct URL — no choice but to try it
+    const { stdout } = await execAsync(
+      `"${YTDLP}" "${query}" --get-id --get-title --get-duration --no-playlist`,
+      { encoding: 'utf8' }
+    );
+    const [title, id, duration] = stdout.trim().split('\n');
+    return {
+      url: `https://www.youtube.com/watch?v=${id}`,
+      title: title || query,
+      duration: duration || '??:??',
+      requester,
+    };
+  }
+
+  // Search — try up to 5 results to skip any age-restricted ones
+  const MAX_ATTEMPTS = 5;
   const { stdout } = await execAsync(
-    `"${YTDLP}" "${searchQuery}" --get-id --get-title --get-duration --no-playlist`,
+    `"${YTDLP}" "ytsearch${MAX_ATTEMPTS}:${query}" --flat-playlist --get-id --get-title --get-duration --no-playlist`,
     { encoding: 'utf8' }
   );
-  const [title, id, duration] = stdout.trim().split('\n');
-  return {
-    url: `https://www.youtube.com/watch?v=${id}`,
-    title: title || query,
-    duration: duration || '??:??',
-    requester,
-  };
+
+  const lines = stdout.trim().split('\n').filter(Boolean);
+
+  // Results come back as interleaved: title, id, duration (3 lines per result)
+  for (let i = 0; i + 2 < lines.length; i += 3) {
+    const title    = lines[i];
+    const id       = lines[i + 1];
+    const duration = lines[i + 2];
+
+    if (!id || id === 'undefined') continue;
+
+    // Quick age-restriction check — re-run get-id on this specific video
+    try {
+      await execAsync(
+        `"${YTDLP}" "https://www.youtube.com/watch?v=${id}" --get-id --no-playlist --skip-download`,
+        { encoding: 'utf8' }
+      );
+      // Passed — use this result
+      return {
+        url: `https://www.youtube.com/watch?v=${id}`,
+        title: title || query,
+        duration: duration || '??:??',
+        requester,
+      };
+    } catch (err) {
+      const msg = err.stderr || err.message || '';
+      if (msg.includes('Sign in to confirm your age')) {
+        console.warn(`[stream] Skipping age-restricted video: ${id} (${title})`);
+        continue; // try the next result
+      }
+      throw err; // unexpected error — bubble up
+    }
+  }
+
+  throw new Error(`No playable results found for "${query}" (all were age-restricted or unavailable).`);
 }
 
 /**
