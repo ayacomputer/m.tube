@@ -6,6 +6,7 @@ import {
   buildQueueEmbed,
   buildNeutralEmbed,
 } from './builders.js';
+import { MessageFlags } from 'discord.js';
 
 // ─── Button handler ───────────────────────────────────────────────────────────
 
