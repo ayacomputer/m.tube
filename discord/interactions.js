@@ -7,7 +7,6 @@ import locales from '../locale.js';
 
 const t = locales[LOCALE] ?? locales.en;
 import { getAISongSuggestion, getAISongQueue } from '../audio/ai.js';
-import { getSongInfo } from '../audio/stream.js';
 import {
   buildAddModal,
   buildAIPickModal,
@@ -15,7 +14,6 @@ import {
   buildQueueEmbed,
   buildQueueJumpMenu,
   buildNeutralEmbed,
-  buildErrorEmbed,
   buildAIPickEmbed,
   buildAIPickControls,
   buildVibeQueueEmbed,
@@ -23,7 +21,6 @@ import {
   buildSearchResultsEmbed,
   buildSearchResultsMenu,
   buildSearchCancelRow,
-  buildControls,
 } from './builders.js';
 
 // ─── In-memory pending state ──────────────────────────────────────────────────
