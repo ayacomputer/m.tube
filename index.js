@@ -1,13 +1,10 @@
-import libsodium from 'libsodium-wrappers';
 import 'dotenv/config';
 import { Client, GatewayIntentBits } from 'discord.js';
 import { YTDLP } from './config.js';
 import { COMMANDS } from './discord/commands.js';
-import { handleButton, handleModal, handleCommand } from './discord/interactions.js';
+import { handleButton, handleModal, handleCommand, handleSelectMenu } from './discord/interactions.js';
 
-await libsodium.ready;
-
-// ─── Global error safety net ─────────────────────────────────────────────────
+// ─── Global error safety net ──────────────────────────────────────────────────
 process.on('unhandledRejection', (err) => console.error('[unhandledRejection]', err));
 process.on('uncaughtException',  (err) => console.error('[uncaughtException]',  err));
 
@@ -29,9 +26,10 @@ client.once('clientReady', async () => {
 
 // ─── Interactions ─────────────────────────────────────────────────────────────
 client.on('interactionCreate', (interaction) => {
-  if (interaction.isButton())           return handleButton(interaction);
-  if (interaction.isModalSubmit())      return handleModal(interaction);
-  if (interaction.isChatInputCommand()) return handleCommand(interaction);
+  if (interaction.isButton())                return handleButton(interaction);
+  if (interaction.isStringSelectMenu())      return handleSelectMenu(interaction);
+  if (interaction.isModalSubmit())           return handleModal(interaction);
+  if (interaction.isChatInputCommand())      return handleCommand(interaction);
 });
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
