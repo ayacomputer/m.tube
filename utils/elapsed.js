@@ -5,7 +5,7 @@
  */
 export function getElapsedMs(state) {
   if (!state.playStartTime) return state.accumulatedMs;
-  return state.accumulatedMs + (Date.now() - state.playStartTime);
+  return Math.max(0, state.accumulatedMs + (Date.now() - state.playStartTime));
 }
 
 /** Mark the start (or restart) of active playback. */
